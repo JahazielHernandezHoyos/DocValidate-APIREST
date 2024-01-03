@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "practique exam for drf"
+version = "0.1.0"
+description = ""
+authors = ["Jahaziel Hernandez Hoyos <jahazielhernandezhoyoz@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "*"
+djangorestframework = "*"
+djangorestframework-simplejwt = "^5.3.1"
+pytest = "*"
+pytest-django = "*"
+psycopg2-binary = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
