@@ -31,3 +31,6 @@ start:
 	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) run api python app/manage.py migrate
 	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) run api python app/manage.py createsuperuser --username=admin --
 
+create-app:
+	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) run api python app/manage.py startapp $(name)
+
