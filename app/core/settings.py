@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+TEST_RUNNER = 'pytest_runner.DjangoTestRunner'
 
 # Application definition
 
