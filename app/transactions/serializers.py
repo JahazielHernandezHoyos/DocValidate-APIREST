@@ -1,6 +1,8 @@
-from PIL import Image
 from rest_framework import serializers
 from .models import Transaction
+from utils.processing_images import validate_image, base64_to_image
+from django.core.files.uploadedfile import TemporaryUploadedFile
+
 
 class TransactionCreateSerializer(serializers.ModelSerializer):
     """
@@ -19,45 +21,15 @@ class TransactionCreateSerializer(serializers.ModelSerializer):
         validate(data):
             Custom validation to ensure that both frontside and backside images are provided.
     """
+
     class Meta:
         """
         The Meta class provides metadata for the TransactionCreateSerializer.
         It specifies the model and fields to be used for serialization.
         """
+
         model = Transaction
-        fields = ['client', 'image_frontside', 'image_backside']
-
-    def validate_image(self, image, max_size_mb, min_resolution, max_resolution):
-        """
-        Custom validation for image files.
-
-        Args:
-            image (PIL.Image.Image): The image to be validated.
-            max_size_mb (int): The maximum size of the image in megabytes.
-            min_resolution (tuple): The minimum resolution allowed for the image.
-            max_resolution (tuple): The maximum resolution allowed for the image.
-
-        Raises:
-            serializers.ValidationError: If the image size exceeds the maximum size or if the resolution is outside the allowed range.
-
-        Returns:
-            PIL.Image.Image: The validated image.
-        """
-        # Check the size
-        max_size_bytes = max_size_mb * 1024 * 1024
-        if image.size > max_size_bytes:
-            raise serializers.ValidationError(f"Image size exceeds the limit of {max_size_mb} MB.")
-
-        # Check the resolution
-        width, height = image.image.size
-        if not min_resolution[0] <= width <= max_resolution[0] or not min_resolution[1] <= height <= max_resolution[1]:
-            raise serializers.ValidationError(f"Image resolution must be between {min_resolution} and {max_resolution}.")
-
-        # Check the file format
-        if image.image.format not in ['JPEG', 'JPG', 'PNG', 'BMP']:
-            raise serializers.ValidationError("Image format must be either JPEG, JPG, PNG, or BMP.")
-
-        return image
+        fields = ["client", "image_frontside", "image_backside"]
 
     def validate(self, data):
         """
@@ -72,29 +44,86 @@ class TransactionCreateSerializer(serializers.ModelSerializer):
         Returns:
             dict: The validated data.
         """
-        image_frontside = data.get('image_frontside')
-        image_backside = data.get('image_backside')
-
+        image_frontside = data.get("image_frontside")
+        image_backside = data.get("image_backside")
         if not image_frontside:
+            Transaction.objects.create(
+                client=data["client"],
+                image_frontside=None,
+                image_backside=None,
+                result=False,
+                error_code=4,
+                details="Frontside image is missing.",
+            )
             raise serializers.ValidationError("Frontside image is missing.")
         elif not image_backside:
+            Transaction.objects.create(
+                client=data["client"],
+                image_frontside=None,
+                image_backside=None,
+                result=False,
+                error_code=5,
+                details="Backside image is missing.",
+            )
             raise serializers.ValidationError("Backside image is missing.")
-
         # Validate the images individually
-        data['image_frontside'] = self.validate_image(
+        data["image_frontside"] = validate_image(
+            client=data["client"],
             image=image_frontside,
-            max_size_mb=4,  # Maximum allowed size in megabytes
-            min_resolution=(224, 224),  # Minimum allowed resolution
-            max_resolution=(3840, 2160)  # Maximum allowed resolution
+            max_size_mb=4,
+            min_resolution=(224, 224),
+            max_resolution=(3840, 2160),
         )
-        data['image_backside'] = self.validate_image(
+        data["image_backside"] = validate_image(
+            client=data["client"],
             image=image_backside,
             max_size_mb=4,
             min_resolution=(224, 224),
-            max_resolution=(3840, 2160)
+            max_resolution=(3840, 2160),
         )
 
+        if isinstance(data["image_frontside"], dict):
+            Transaction.objects.create(
+                client=data["client"],
+                image_frontside=image_frontside,
+                image_backside=image_backside,
+                result=False,
+                error_code=data["image_frontside"]["error_code"],
+                details=data["image_frontside"]["details"],
+            )
+            raise serializers.ValidationError(data["image_frontside"]["details"])
+        elif isinstance(data["image_backside"], dict):
+            Transaction.objects.create(
+                client=data["client"],
+                image_frontside=image_frontside,
+                image_backside=image_backside,
+                result=False,
+                error_code=data["image_backside"]["error_code"],
+                details=data["image_backside"]["details"],
+            )
+            raise serializers.ValidationError(data["image_backside"]["details"])
+
         return data
+
+
+def to_internal_value(self, data):
+    """
+    Convert base64 image strings to Image instances.
+
+    Args:
+        data (dict): The data to be converted.
+
+    Returns:
+        dict: The converted data.
+    """
+    if "image_frontside" in data and isinstance(data["image_frontside"], str):
+        data["image_frontside"] = base64_to_image(data["image_frontside"])
+
+    if "image_backside" in data and isinstance(data["image_backside"], str):
+        data["image_backside"] = base64_to_image(data["image_backside"])
+
+    return super().to_internal_value(data)
+
 
 class TransactionSerializer(serializers.ModelSerializer):
     """
@@ -106,10 +135,13 @@ class TransactionSerializer(serializers.ModelSerializer):
         model (django.db.models.Model): The model class to be used for serialization.
         fields (list): The fields to be included in the serialized representation.
     """
+
     class Meta:
         """
         The Meta class provides metadata for the TransactionSerializer.
         It specifies the model and fields to be used for serialization.
         """
+
         model = Transaction
         fields = "__all__"
+        depth = 1

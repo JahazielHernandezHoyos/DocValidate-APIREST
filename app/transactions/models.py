@@ -18,34 +18,15 @@ class Transaction(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     image_frontside = models.ImageField(upload_to='transaction_images/')
     image_backside = models.ImageField(upload_to='transaction_images/')
-    result = models.BooleanField()
+    result = models.BooleanField(default=True)
     error_code = models.PositiveIntegerField(null=True, blank=True)
     details = models.TextField(null=True, blank=True)
 
-    def save(self, *args, **kwargs):
+    def __str__(self):
         """
-        Overrides the save method to validate the transaction and set the result, error code, and details.
-
-        If both the frontside and backside images are present, the transaction is considered successful.
-        Otherwise, the transaction is considered a failure and the appropriate error code and details are set.
-
-        Args:
-            *args: Variable length argument list.
-            **kwargs: Arbitrary keyword arguments.
+        Returns the string representation of the transaction.
 
         Returns:
-            None
+            str: The string representation of the transaction.
         """
-        if self.image_frontside and self.image_backside:
-            self.result = True
-            self.error_code = None
-            self.details = None
-        else:
-            self.result = False
-            if not self.image_frontside:
-                self.details = "Frontside image is missing."
-            elif not self.image_backside:
-                self.details = "Backside image is missing."
-            self.error_code = 404
-
-        super().save(*args, **kwargs)
+        return f"{self.client} - {self.creation_date}"

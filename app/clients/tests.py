@@ -9,6 +9,3 @@ class ClienteTests(APITestCase):
         self.refresh_token = RefreshToken.for_user(self.user)
         self.access_token = str(self.refresh_token.access_token)
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
-
-    def test_create_cliente(self):
-        # Tu prueba aquí
