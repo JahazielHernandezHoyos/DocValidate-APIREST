@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from .models import Clients
+from .models import Client
 
-class ClientsSerializer(serializers.ModelSerializer):
+class ClientSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Clients
-        fields = ['id', 'full_name', 'email', 'phone']
+        model = Client
+        fields = "__all__"
 
-class ClientsCreateSerializer(serializers.ModelSerializer):
+class ClientCreateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Clients
+        model = Client
         fields = ['full_name', 'email', 'phone']

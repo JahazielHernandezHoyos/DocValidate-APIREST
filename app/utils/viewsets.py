@@ -3,6 +3,7 @@ from rest_framework import filters, mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class CustomPagination(PageNumberPagination):
@@ -36,17 +37,16 @@ class CustomPagination(PageNumberPagination):
         )
 
 
+
 class BaseViewSet(viewsets.GenericViewSet):
     """
     Base viewset class that provides common functionality for other viewsets.
     """
 
-    permission_classes = [
-        AllowAny,
-    ]
     pagination_class = CustomPagination
     filter_backends = (filters.SearchFilter,)
     custom_serializer_class = None
+    authentication_classes = [JWTAuthentication]
 
     def get_serializer_class(self):
         """

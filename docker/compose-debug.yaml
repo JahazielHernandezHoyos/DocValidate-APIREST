@@ -1,0 +1,49 @@
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker compose reference guide at
+# https://docs.docker.com/compose/compose-file/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ../app:/app
+    env_file:
+      - ../dev.env
+    ports:
+      - 8000:8000
+      - 5678:5678
+    networks:
+      - my-network
+    tty: true
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --wait-for-client --listen 0.0.0.0:5678 app/manage.py runserver 0.0.0.0:8000"]
+
+  db:
+    image: postgres
+    restart: always
+    user: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    env_file:
+      - ../dev.env
+    expose:
+      - 5432:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - my-network
+
+volumes:
+  db-data:
+
+networks:
+  my-network:

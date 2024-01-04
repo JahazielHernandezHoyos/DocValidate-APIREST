@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import RegexValidator
 
 
-class Clients(models.Model):
+class Client(models.Model):
     """
     Model representing a client.
 

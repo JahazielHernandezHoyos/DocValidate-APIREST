@@ -21,10 +21,10 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("v1/auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("v1/auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("v1/clients", include("clients.urls")),
-    path("v1/transactions", include("transactions.urls")),
+    path("auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("", include("clients.urls")),
+    path("", include("transactions.urls")),
 ]
 
 if settings.DEBUG:
