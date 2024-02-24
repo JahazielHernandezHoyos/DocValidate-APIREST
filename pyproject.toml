@@ -6,7 +6,7 @@ authors = ["Jahaziel Hernandez Hoyos <jahazielhernandezhoyoz@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 django = "*"
 djangorestframework = "*"
 djangorestframework-simplejwt = "^5.3.1"
