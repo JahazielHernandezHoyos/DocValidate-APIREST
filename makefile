@@ -2,8 +2,8 @@
 
 # Variables
 DOCKER_COMPOSE := docker-compose
-DOCKER_COMPOSE_FILE := docker/compose.yaml
-DOCKER_COMPOSE_FILE_DEBUG := docker/compose-debug.yaml
+DOCKER_COMPOSE_FILE := compose.yaml
+DOCKER_COMPOSE_FILE_DEBUG := compose-debug.yaml
 
 # Targets
 .PHONY: build up down clean migrations superuser start
