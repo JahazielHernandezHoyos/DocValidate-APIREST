@@ -22,10 +22,9 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@54.152.126.244 'cd /home/ec2-user/DocValidate-APIREST && git reset --hard && git pull origin main && sudo docker-compose build && sudo docker-compose up -d && make migrations'
 
-    - name: Notify Discord
-      uses: Ilshidur/action-discord@v2.1.1
+    - name: Discord notification
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      uses: Ilshidur/action-discord@master
       with:
-        webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        content: 'Deployment to EC2 completed successfully.'
-        username: GitHub Actions
-        avatar_url: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
+        args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.'
