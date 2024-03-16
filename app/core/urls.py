@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="DocValidate API",
+        title="DocValidate API Jahaziel Hernandez",
         default_version="v1",
         description="Validation for documents",
         terms_of_service="https://jahaziel.netlify.app/",
