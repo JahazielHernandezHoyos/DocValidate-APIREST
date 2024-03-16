@@ -1,7 +1,7 @@
 name: Deploy to EC2
 
 on:
-  push:
+  pull_request:
     branches:
       - main  # O cambie 'main' al nombre de su rama a desplegar
 
@@ -17,12 +17,15 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      if: github.event_name == 'pull_request'
 
     - name: SSH into EC2 and deploy
       run: |
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@54.152.126.244 'cd /home/ec2-user/DocValidate-APIREST && git reset --hard && git pull origin main && sudo docker-compose build && sudo docker-compose up -d && make migrations'
+      if: github.event_name == 'pull_request'
 
     - name: Discord notification
+      if: github.event_name == 'pull_request'
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
       uses: Ilshidur/action-discord@master
