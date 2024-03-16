@@ -10,7 +10,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title="DocValidate API Jahaziel Hernandez",
         default_version="v1",
-        description="Validation for documents",
+        description="Validation for documents with JWT",
         terms_of_service="https://jahaziel.netlify.app/",
         contact=openapi.Contact(email="jahazielhernandezhoyoz@gmail.com"),
         license=openapi.License(name="MIT"),
